@@ -52,7 +52,7 @@ float pearson(float* x, float* y, int size) {
     float sDivY = sqrt(var(y, size));
     return cov(x, y, size) / (sDivX * sDivY);
 }
-// performs a linear regression and return s the line equation
+// performs a linear regression and returns the line equation
 Line linear_reg(Point** points, int size) {
     float a = 0;
     float b = 0;

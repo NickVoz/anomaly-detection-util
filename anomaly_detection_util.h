@@ -3,8 +3,8 @@
  * Nick Vozilov, ID: 318732252
  */
 
-#ifndef PROJECT_P1_ANOMALY_DETECTION_UTIL_H
-#define PROJECT_P1_ANOMALY_DETECTION_UTIL_H
+#ifndef ANOMALY_DETECTION_UTIL_H
+#define ANOMALY_DETECTION_UTIL_H
 
 // returns the variance of X
 float var(float* x, int size);
@@ -39,4 +39,5 @@ float dev(Point p, Line l);
 float mean(float* x, int size);
 // calculates absolute value of a float variable
 float absVal(float x);
-#endif //PROJECT_P1_ANOMALY_DETECTION_UTIL_H
+
+#endif //ANOMALY_DETECTION_UTIL_H
