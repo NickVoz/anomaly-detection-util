@@ -49,7 +49,7 @@ void SimpleAnomalyDetector::addCorrelation(const TimeSeries& ts, int i, int c, f
     correlatedFeatures correlated;
     correlated.feature1 = ts.getNames()[i];
     correlated.feature2 = ts.getNames()[c];
-    correlated.correlation = correlation;
+    correlated.corrlation = correlation;
     auto col1 = ts.getDataCol(i);
     auto col2 = ts.getDataCol(c);
     Point** pointsArr = colToPoint(col1, col2, col1.size());
