@@ -26,7 +26,7 @@ public:
     virtual void learnNormal(const TimeSeries& ts) = 0;
     virtual std::vector<AnomalyReport> detect(const TimeSeries& ts)=0;
     // destructor
-    virtual ~TimeSeriesAnomalyDetector(){}
+    virtual ~TimeSeriesAnomalyDetector() {}
 };
 
 #endif //ANOMALYDETECTOR_H

@@ -64,12 +64,6 @@ std::vector<float> TimeSeries::strToFloat(std::vector<std::string> currentLine) 
 }
 
 
-void TimeSeries::addCorrelation (std::vector<std::string> correlated) {
-    corrPairs.push_back(correlated);
-}
-
-
-
 
 /** Getter functions **/
 // Returns the data in the specified column and row number.
@@ -77,11 +71,11 @@ float TimeSeries::getData(int col, int index) {
     return dataVec[col][index];
 }
 // returns a data column.
-const std::vector<float> TimeSeries::getDataCol(int col) const{
+const std::vector<float> TimeSeries::getDataCol(int col) const {
     return dataVec[col];
 }
 // returns the name vector.
-const std::vector<std::string> TimeSeries::getNames() const{
+const std::vector<std::string> TimeSeries::getNames() const {
     return colNames;
 }
 

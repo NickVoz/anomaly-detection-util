@@ -17,8 +17,7 @@ class TimeSeries {
     const char* fileName;
     std::vector<std::vector<float>> dataVec;
     std::vector<std::string> colNames;
-    // vector representing correlated pairs
-    std::vector<std::vector<std::string>> corrPairs;
+
 private:
     void readFile();
     std::vector<std::string> split(std::string a, std::string del = ",");
@@ -28,7 +27,6 @@ public:
     float getData(int col, int index);
     const std::vector<std::string> getNames() const;
     const std::vector<float> getDataCol(int col) const;
-    void addCorrelation (std::vector<std::string> correlated) const;
 };
 
 float* vecToArr(std::vector<float>);

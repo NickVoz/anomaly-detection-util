@@ -8,7 +8,7 @@
 
 #include <iostream>
 #include <vector>
-#include "AnomalyDetector.h"
+//#include "AnomalyDetector.h"
 #include "SimpleAnomalyDetector.h"
 #include <fstream>
 #include <stdlib.h>     /* srand, rand */
