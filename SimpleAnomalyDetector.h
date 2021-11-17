@@ -27,7 +27,6 @@ struct correlatedFeatures {
 
 class SimpleAnomalyDetector: public TimeSeriesAnomalyDetector {
     std::vector<correlatedFeatures> cf;
-    std::vector<float> maxDist;
 private:
     void addCorrelation(const TimeSeries& ts, int i, int c, float correlation);
 public:
@@ -47,6 +46,6 @@ public:
 Point** colToPoint(std::vector<float> feature1, std::vector<float> feature2, int size);
 float distPointLine(Line a, Point b);
 float calculateDist(Point **pPoint, Line line, int size);
-
+int findIndex(std::string searchFor, std::vector<std::string> stringVec, int size);
 
 #endif //SIMPLEANOMALYDETECTOR_H

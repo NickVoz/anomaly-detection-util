@@ -68,7 +68,7 @@ float calculateDist(Point **pPoint, Line line, int size) {
             distance = temp;
         }
     }
-    return float(distance * 1.1);
+    return distance * 1.1;
 }
 
 // converts two float vectors into Point pairs, returns an array
@@ -83,14 +83,14 @@ Point** colToPoint(std::vector<float> feature1, std::vector<float> feature2, int
 
 // Calculates the distance between a given line and a point.
 float distPointLine(Line line, Point point) {
-    // find perpendicular line.
-    float a = -1 / (line.a);
-    float b = point.y - a * point.x;
-    // find intersection.
-    float xInter = (b - line.b) / (line.a - a);
-    float yInter = line.f(xInter);
-    // calculate distance.
-    float xSub = xInter - point.x;
-    float ySub = yInter - point.y;
-    return sqrt(pow(xSub, 2) + pow(ySub, 2));
+    return abs(line.f(point.x) - point.y);
+}
+
+// finds the index of the desired string in a vector.
+int findIndex(std::string searchFor, std::vector<std::string> stringVec, int size) {
+    for (int i = 0; i < size; i++) {
+        if (0 == stringVec[i].compare(searchFor)) {
+            return i;
+        }
+    }
 }
