@@ -39,8 +39,32 @@ void SimpleAnomalyDetector::learnNormal(const TimeSeries& ts) {
     }
 }
 
-std::vector<AnomalyReport> SimpleAnomalyDetector::detect(const TimeSeries& ts){
+std::vector<AnomalyReport> SimpleAnomalyDetector::detect(const TimeSeries& ts) {
+    std::vector<AnomalyReport> output;
+    for(int i = 0; i < cf.size(); i++) {
+        std::string featureName1 = cf[i].feature1;
+        std::string featureName2 = cf[i].feature2;
+        int index1 = findIndex(featureName1, ts.getNames(), ts.getNames().size());
+        int index2 = findIndex(featureName2, ts.getNames(), ts.getNames().size());
+        std::vector<float> col1 = ts.getDataCol(index1);
+        std::vector<float> col2 = ts.getDataCol(index2);
+        Point** pointArr = colToPoint(col1, col2, col1.size());
+        Line regFunc = cf[i].lin_reg;
 
+        for (int j = 0; j < ts.getDataCol(0).size(); j++) {
+            float yExpected = regFunc.f(pointArr[j]->x);
+            float yResult = (*(pointArr + j))->y;
+            float distance = abs(yExpected - yResult);
+            if(distance > cf[i].threshold) {
+                std::string temp;
+                temp.append(featureName1).append("-").append(featureName2);
+                AnomalyReport anomaly(temp, j + 1);
+                output.push_back(anomaly);
+            }
+        }
+        delete[] pointArr;
+    }
+    return output;
 }
 
 /* Auxiliary functions */
