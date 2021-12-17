@@ -1,3 +1,10 @@
+/**
+ * minCircle.h
+ *
+ * Authors:
+ * Shani Shafir, ID: 207071721
+ * Nick Vozilov, ID: 318732252
+ */
 
 #ifndef MINCIRCLE_H_
 #define MINCIRCLE_H_
@@ -28,11 +35,9 @@ Point calcCenter(const Point& a, const Point& b, const Point& c);
 Circle findMinCircle(Point** points, size_t size);
 Circle createCircle(const Point& a, const Point& b, const Point& c);
 Circle createCircle(const Point& a, const Point& b);
-bool isValidCircle(const Circle& c, const vector<Point>& pointVector);
+bool isInsideCircle(const Circle& c, const vector<Point>& pointVector);
 Circle calcTrivCircle(const vector<Point>& pArr);
-Circle welzlAlg(vector<Point>& pArr, vector<Point> onCirc, int size);
+Circle welzlAlg(Point** points, vector<Point> onCirc, int size);
 float pointDistance(const Point& a, const Point& b);
-
-// you can add here additional methods
 
 #endif /* MINCIRCLE_H_ */
