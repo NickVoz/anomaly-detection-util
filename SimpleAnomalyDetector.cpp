@@ -69,20 +69,20 @@ std::vector<AnomalyReport> SimpleAnomalyDetector::detect(const TimeSeries& ts) {
 
 /* Auxiliary functions */
 // adds a correlation to the correlation vector
-void SimpleAnomalyDetector::addCorrelation(const TimeSeries& ts, int i, int c, float correlation) {
+void SimpleAnomalyDetector::addCorrelation(const TimeSeries& ts,
+                                           int i, int c, float correlation) {
     correlatedFeatures correlated;
     correlated.feature1 = ts.getNames()[i];
     correlated.feature2 = ts.getNames()[c];
     correlated.corrlation = correlation;
     auto col1 = ts.getDataCol(i);
     auto col2 = ts.getDataCol(c);
-    Point** pointsArr = colToPoint(col1, col2, col1.size());
+    Point **pointsArr = colToPoint(col1, col2, col1.size());
     correlated.lin_reg = linear_reg(pointsArr, col1.size());
     correlated.threshold = calculateDist(pointsArr, correlated.lin_reg, col1.size());
     cf.push_back(correlated);
     delete[] pointsArr;
 }
-
 // calculates the maximal distance between the correlated Point array and the regression line.
 float calculateDist(Point **pPoint, Line line, int size) {
     float distance = 0;

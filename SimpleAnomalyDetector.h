@@ -15,20 +15,22 @@
 #include <algorithm>
 #include <string>
 #include <math.h>
-
+#include "minCircle.h"
 
 struct correlatedFeatures {
     std::string feature1,feature2;  // names of the correlated features
-    float corrlation;
+    float corrlation = 0;
     Line lin_reg;
     float threshold;
+    bool flg = false; // indicates type of correlation
+    Circle corrCircle = Circle(Point(0, 0), 0);
 };
 
 
 class SimpleAnomalyDetector: public TimeSeriesAnomalyDetector {
-    std::vector<correlatedFeatures> cf;
-private:
+protected:
     void addCorrelation(const TimeSeries& ts, int i, int c, float correlation);
+    std::vector<correlatedFeatures> cf;
 public:
     SimpleAnomalyDetector();
     virtual ~SimpleAnomalyDetector();
