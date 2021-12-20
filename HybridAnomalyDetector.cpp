@@ -34,6 +34,7 @@ void HybridAnomalyDetector::learnNormal(const TimeSeries& ts) {
                 break;
             }
             delete[] compTo;
+
         }
         if (c != -1) {
             Circle corrCircle = getCircle(ts.getDataCol(i), ts.getDataCol(c));
@@ -56,15 +57,21 @@ std::vector<AnomalyReport> HybridAnomalyDetector::detect(const TimeSeries& ts) {
         std::vector<float> col1 = ts.getDataCol(index1);
         std::vector<float> col2 = ts.getDataCol(index2);
         Point** pointArr = colToPoint(col1, col2, col1.size());
+        int c = -1;
         for (int j = 0; j < col1.size(); ++j) {
             if (!isInside(cf[i].corrCircle, **(pointArr + j))) {
-                std::string temp;
-                temp.append(featureName1).append("-").append(featureName2);
-                AnomalyReport anomaly(temp, j + 1);
-                output.push_back(anomaly);
+                c = j + 1;
             }
         }
-        delete[] pointArr;
+        if (c != -1) {
+            std::string temp;
+            temp.append(featureName1).append("-").append(featureName2);
+            AnomalyReport anomaly(temp, c);
+            output.push_back(anomaly);
+        }
+        for (int i = 0; i < col1.size(); ++i) {
+            delete[] *(pointArr + i);
+        }
     }
     return output;
 }
@@ -81,7 +88,10 @@ void HybridAnomalyDetector::addCorrelation(const TimeSeries& ts, int i, int c, C
     correlated.lin_reg = linear_reg(pointsArr, col1.size());
     correlated.threshold = calculateDist(pointsArr, correlated.lin_reg, col1.size());
     cf.push_back(correlated);
-    delete[] pointsArr;
+    for (int i = 0; i < col1.size(); ++i) {
+        delete[] *(pointsArr + i);
+    }
+
 }
 
 Circle getCircle(std::vector<float> a, std::vector<float> b) {

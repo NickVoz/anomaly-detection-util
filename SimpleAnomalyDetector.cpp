@@ -42,6 +42,9 @@ void SimpleAnomalyDetector::learnNormal(const TimeSeries& ts) {
 std::vector<AnomalyReport> SimpleAnomalyDetector::detect(const TimeSeries& ts) {
     std::vector<AnomalyReport> output;
     for(int i = 0; i < cf.size(); i++) {
+        if (cf[i].flg) {
+            continue;
+        }
         std::string featureName1 = cf[i].feature1;
         std::string featureName2 = cf[i].feature2;
         int index1 = findIndex(featureName1, ts.getNames(), ts.getNames().size());
@@ -50,19 +53,25 @@ std::vector<AnomalyReport> SimpleAnomalyDetector::detect(const TimeSeries& ts) {
         std::vector<float> col2 = ts.getDataCol(index2);
         Point** pointArr = colToPoint(col1, col2, col1.size());
         Line regFunc = cf[i].lin_reg;
-
+        int c = -1;
         for (int j = 0; j < ts.getDataCol(0).size(); j++) {
             float yExpected = regFunc.f(pointArr[j]->x);
             float yResult = (*(pointArr + j))->y;
             float distance = abs(yExpected - yResult);
             if(distance > cf[i].threshold) {
-                std::string temp;
-                temp.append(featureName1).append("-").append(featureName2);
-                AnomalyReport anomaly(temp, j + 1);
-                output.push_back(anomaly);
+                c = j + 1;
+                break;
             }
         }
-        delete[] pointArr;
+        if (c != -1) {
+            std::string temp;
+            temp.append(featureName1).append("-").append(featureName2);
+            AnomalyReport anomaly(temp, c);
+            output.push_back(anomaly);
+        }
+        for (int i = 0; i < col1.size(); ++i) {
+            delete[] *(pointArr + i);
+        }
     }
     return output;
 }
@@ -81,7 +90,9 @@ void SimpleAnomalyDetector::addCorrelation(const TimeSeries& ts,
     correlated.lin_reg = linear_reg(pointsArr, col1.size());
     correlated.threshold = calculateDist(pointsArr, correlated.lin_reg, col1.size());
     cf.push_back(correlated);
-    delete[] pointsArr;
+    for (int i = 0; i < col1.size(); ++i) {
+        delete[] *(pointsArr + i);
+    }
 }
 // calculates the maximal distance between the correlated Point array and the regression line.
 float calculateDist(Point **pPoint, Line line, int size) {

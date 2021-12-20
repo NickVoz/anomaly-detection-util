@@ -128,10 +128,11 @@ int main(){
 	anomalies.push_back(AnomalyReport("A-B",anomaly1));
 	anomalies.push_back(AnomalyReport("C-D",anomaly2));
 	anomalies.push_back(AnomalyReport("E-F",anomaly3));
+    std::cout << "anomaly 3 is: " << anomaly3 << std::endl;
 
 	generateTestCSV(a1,b1,a2,b2,a3,b3);
 	TimeSeries ts2("testFile.csv");
-	vector<AnomalyReport> r = ad.detect(ts2);
+    vector<AnomalyReport> r = ad.detect(ts2);
 	bool detected[]={false,false,false};
 
 	for_each(r.begin(),r.end(),[&detected](AnomalyReport ar){

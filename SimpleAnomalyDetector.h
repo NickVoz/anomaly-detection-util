@@ -14,6 +14,7 @@
 #include <vector>
 #include <algorithm>
 #include <string>
+#include <string.h>
 #include <math.h>
 #include "minCircle.h"
 

@@ -17,4 +17,5 @@ public:
 };
 Circle getCircle(std::vector<float> a, std::vector<float> b);
 
+
 #endif /* HYBRIDANOMALYDETECTOR_H_ */
