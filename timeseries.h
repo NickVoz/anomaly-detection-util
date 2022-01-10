@@ -20,7 +20,6 @@ class TimeSeries {
 
 private:
     void readFile();
-    std::vector<std::string> split(std::string a, std::string del = ",");
     std::vector<float> strToFloat(std::vector<std::string> currentLine);
 public:
     TimeSeries(const char* CSVfileName);
@@ -28,6 +27,7 @@ public:
     const std::vector<std::string> getNames() const;
     const std::vector<float> getDataCol(int col) const;
 };
+std::vector<std::string> split(std::string a, std::string del = ",");
 
 float* vecToArr(std::vector<float>);
 

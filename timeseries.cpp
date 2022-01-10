@@ -36,10 +36,11 @@ void TimeSeries::readFile() {
             dataVec[i].push_back(lineData[i]);
         }
     }
+    input.close();
 }
 // Splits given string into a vector of substrings. Splits in according to the
 // delimiter
-std::vector<std::string> TimeSeries::split(std::string a, std::string del) {
+std::vector<std::string> split(std::string a, std::string del) {
     std::vector<std::string> output;
     int start = 0;
     int end = a.find(del);

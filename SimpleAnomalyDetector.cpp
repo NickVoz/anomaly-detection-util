@@ -21,7 +21,7 @@ SimpleAnomalyDetector::~SimpleAnomalyDetector() {
 void SimpleAnomalyDetector::learnNormal(const TimeSeries& ts) {
     for (int i = 0; i < ts.getNames().size(); i++) {
         float *compared = vecToArr(ts.getDataCol(i));
-        float m = 0.9;
+        float m = threshold;
         int c = -1;
         for (int j = i + 1; j < ts.getNames().size(); j++) {
             float *compTo = vecToArr(ts.getDataCol(j));

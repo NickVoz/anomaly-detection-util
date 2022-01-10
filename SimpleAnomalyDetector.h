@@ -33,6 +33,7 @@ protected:
     void addCorrelation(const TimeSeries& ts, int i, int c, float correlation);
     std::vector<correlatedFeatures> cf;
 public:
+    float threshold = 0.9;
     SimpleAnomalyDetector();
     virtual ~SimpleAnomalyDetector();
 

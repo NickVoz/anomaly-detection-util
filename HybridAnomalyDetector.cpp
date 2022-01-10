@@ -1,6 +1,5 @@
 
 #include "HybridAnomalyDetector.h"
-#define MAX 0.9
 #define MIN 0.5
 
 HybridAnomalyDetector::HybridAnomalyDetector() {
@@ -15,7 +14,7 @@ HybridAnomalyDetector::~HybridAnomalyDetector() {
 void HybridAnomalyDetector::learnNormal(const TimeSeries& ts) {
     // Initialize correlatedFeatures vector with all proper correlations(>0.9)
     SimpleAnomalyDetector::learnNormal(ts);
-    //
+    const float MAX = threshold;
     for (int i = 0; i < ts.getNames().size(); i++) {
         float *compared = vecToArr(ts.getDataCol(i));
         int c = -1;
