@@ -79,7 +79,13 @@ void check(string outputFile,string expectedOutputFile){
 
  //small test
 int main(){
+     ifstream in("input.txt");
+     string s;
+     in>>s;
 	STDtest std("input.txt","output.txt");
+
+
+
 	CLI cli(&std);
 	cli.start();
 	std.close();

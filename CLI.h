@@ -11,7 +11,7 @@ using namespace std;
 class CLI {
 	DefaultIO* dio;
     std::vector<Command*> commands;
-	// you can add data members
+    Database db;
 public:
 	CLI(DefaultIO* dio);
 	void start();

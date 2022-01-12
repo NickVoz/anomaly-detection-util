@@ -10,8 +10,8 @@
 #define COMMANDS_H_
 
 #include<iostream>
-#include <string.h>
-
+#include <cstring>
+#include <sys/socket.h>
 #include <fstream>
 #include <vector>
 #include "HybridAnomalyDetector.h"
@@ -27,6 +27,7 @@ public:
     HybridAnomalyDetector detector;
     std::vector<AnomalyReport> anomalies;
     std::vector<TimeSeries> tsArray;
+    bool stopFlg = true;
 
 };
 
@@ -44,19 +45,16 @@ public:
 // you may add here helper classes
 class StandardIO : public DefaultIO {
 public:
-    virtual void write(string text) override {
-        std::cout << text << std::endl;
+    std::string read() override {
+        std::string str;
+        std::cin >> str;
+        return str;
     }
-    virtual string read() override {
-        string output;
-        std::cin >> output;
-        return output;
-    }
-    virtual void write(float f) override {}
-    virtual void read(float* f) override {}
+    void write(string text) override { std::cout << text << std::endl; }
+    void write(float f) override { std::cout << f; }
+    void read(float* f) override { std::cin >> *f; }
 };
 
-// you may edit this class
 class Command{
 protected:
 	DefaultIO* dio;
@@ -122,7 +120,8 @@ public:
  * @param detected detected anomalies
  * @return vector. vec[0] = FP, vec[1] = TP
  */
-    virtual std::vector<long> getFPTP(std::vector<std::vector<long>> expected, std::vector<std::vector<long>> detected) {
+    virtual std::vector<long> getFPTP(std::vector<std::vector<long>> expected,
+                                      std::vector<std::vector<long>> detected) {
         long FP = 0;
         long TP = 0;
         std::vector<long> output;
@@ -130,7 +129,7 @@ public:
             bool flg = true;
             for (std::vector<long> j : expected) {
                 if ((i[0] >=  j[0] && i[0] <= j[1]) || (i[1] >=  j[0] && i[1] <= j[1])) {
-                    TP += 1;
+                    TP++;
                     flg = false;
                 }
             }
@@ -161,11 +160,11 @@ public:
         dio->write("Upload complete.");
     }
     void writeTo(std::string path) {
-        std::ofstream out;
+        std::ofstream out(path);
         out.open(path);
         std::string line = dio->read();
         while (line != "done") {
-            out << line + '\n';
+            out << line << '\n';
             line = dio->read();
         }
         out.close();
@@ -179,6 +178,7 @@ public:
         std::string output = "The current correlation threshold is ";
         output += to_string(db->detector.threshold);
         dio->write(output);
+        dio->write("Type a new threshold");
         float choice;
         // This loop runs until the user enters a valid input.
         while(true){
@@ -201,9 +201,7 @@ public:
             }
         }
         db->detector.threshold = choice;
-
     }
-
 };
 
 // Command 3
@@ -222,9 +220,9 @@ class DisplayResultsCommand : public Command {
 public:
     DisplayResultsCommand(DefaultIO *dio, Database *db) : Command(dio, db, "4. display results") {};
     void execute() override {
-        std::string output;
         for (AnomalyReport i : db->anomalies) {
-            output += i.timeStep;
+            std::string output;
+            output += to_string(i.timeStep);
             output += "\t";
             output += i.description;
             dio->write(output);
@@ -239,9 +237,17 @@ public:
     Command(dio, db, "5. upload anomalies and analyze results") {};
     void execute() override {
         dio->write("Please upload your local anomalies file.");
+        std::vector<std::vector<long>> expected;
         std::string path = dio->read();
+
+        std::string line;
+        while ((line = dio->read()) != "done") {
+            std::vector<long> sub;
+            sub.push_back(stof(line.substr(0, line.find(','))));
+            sub.push_back(stof(line.substr(line.find(',') + 1)));
+            expected.push_back(sub);
+        }
         dio->write("Upload complete.");
-        std::vector<std::vector<long>> expected = readExpectedAnomalies(path);
         auto detected = formatAnomalyTS(db->anomalies);
         std::vector<long> results = getFPTP(expected, detected);
         long p = expected.size();
@@ -255,7 +261,7 @@ public:
         tpRate /= 1000;
         double fpRate = ((double) results[0]) / ((double) N);
         fpRate *= 1000;
-        fpRate = floor(tpRate);
+        fpRate = floor(fpRate);
         fpRate /= 1000;
         std::string outputString = "True Positive Rate: ";
         outputString += tpRate;
@@ -266,5 +272,12 @@ public:
     }
 };
 
+class ExitCommand : public Command {
+public:
+    ExitCommand(DefaultIO *dio, Database *db) : Command(dio, db, "6. exit") {};
+    void execute() override {
+        db->stopFlg = false;
+    }
+};
 
 #endif /* COMMANDS_H_ */

@@ -8,37 +8,36 @@
 
 #include "CLI.h"
 
-CLI::CLI(DefaultIO* dio) : dio(dio){}
+CLI::CLI(DefaultIO* dio) : dio(dio) {
+    this->dio = dio;
+    commands.push_back(new TrainCSVCommand(dio, &db));
+    commands.push_back(new ChangeThresholdCommand(dio, &db));
+    commands.push_back(new TestCSVCommand(dio, &db));
+    commands.push_back(new DisplayResultsCommand(dio, &db));
+    commands.push_back(new AnalyzeResultsCommand(dio, &db));
+    commands.push_back(new ExitCommand(dio, &db));
+}
 
-void CLI::start(){
-    Database db;
-    TrainCSVCommand command1 = TrainCSVCommand(dio, &db);
-    ChangeThresholdCommand command2 = ChangeThresholdCommand(dio, &db);
-    TestCSVCommand command3 = TestCSVCommand(dio, &db);
-    DisplayResultsCommand command4 = DisplayResultsCommand(dio, &db);
-    AnalyzeResultsCommand command5 = AnalyzeResultsCommand(dio, &db);
-    commands.push_back(&command1);
-    commands.push_back(&command2);
-    commands.push_back(&command3);
-    commands.push_back(&command4);
-    commands.push_back(&command5);
-    while (true) {
+void CLI::start() {
+    while (db.stopFlg) {
+        dio->write("Welcome to the Anomaly Detection Server.\nPlease choose an option:");
         for (Command* i : commands) {
             dio->write(i->description);
         }
-        dio->write("6. exit");
-        int choice = std::stoi(dio->read());
-        if (choice == 6){
-            break;
+        try {
+            int choice = std::stoi(dio->read());
+            commands[choice - 1]->execute();
         }
-        commands[choice]->execute();
-
+        catch (const exception& e) {
+            dio->write("Please choose an option from 1 to 6.");
+        }
     }
-
-
 }
 
 
 CLI::~CLI() {
+    for (auto& command : commands) {
+        delete command;
+    }
 }
 
