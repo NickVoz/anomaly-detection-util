@@ -11,7 +11,6 @@
 
 #include<iostream>
 #include <cstring>
-#include <sys/socket.h>
 #include <fstream>
 #include <vector>
 #include "HybridAnomalyDetector.h"
@@ -20,10 +19,9 @@ using namespace std;
 
 // Auxiliary functions
 
-
+// Shared Database class, will serve as a shared data structure between all Commands
 class Database {
 public:
-    string csv;
     HybridAnomalyDetector detector;
     std::vector<AnomalyReport> anomalies;
     std::vector<TimeSeries> tsArray;
@@ -39,10 +37,9 @@ public:
 	virtual void write(float f)=0;
 	virtual void read(float* f)=0;
 	virtual ~DefaultIO(){}
-
-	// you may add additional methods here
 };
-// you may add here helper classes
+
+
 class StandardIO : public DefaultIO {
 public:
     std::string read() override {
@@ -50,7 +47,9 @@ public:
         std::cin >> str;
         return str;
     }
-    void write(string text) override { std::cout << text << std::endl; }
+    void write(string text) override {
+        std::cout << text;
+    }
     void write(float f) override { std::cout << f; }
     void read(float* f) override { std::cin >> *f; }
 };
@@ -64,19 +63,22 @@ public:
 	virtual void execute()=0;
 	virtual ~Command(){}
     std::string description;
+
     /*
- * returns all the time frames in the anomaly report
- */
+    * groups up all adjacent TimeSteps into a single time frame, returns all time frames in the AnomalyReport.
+    */
     virtual std::vector<std::vector<long>> formatAnomalyTS(std::vector<AnomalyReport> anomalies) {
         std::vector<std::vector<long>> output;
         std::vector<long> timeFrame;
         timeFrame.push_back(anomalies[0].timeStep);
         long lastIndex = anomalies[0].timeStep;
+        bool flg = false;
         for (int i = 1; i < anomalies.size(); i++) {
             // next anomaly matches current anomaly's description
             if (anomalies[i].description == anomalies[i-1].description &&
                 anomalies[i].timeStep == anomalies[i-1].timeStep + 1) {
                 lastIndex = anomalies[i].timeStep;
+                flg = true;
             }
                 // next anomaly does not match the previous one, either by time frame or by description
             else if(anomalies[i].description != anomalies[i-1].description ||
@@ -86,99 +88,59 @@ public:
                 timeFrame = std::vector<long>();
                 timeFrame.push_back(anomalies[i].timeStep);
                 lastIndex = anomalies[i].timeStep;
+                flg = false;
             }
         }
-        return output;
-    }
-
-/**
- * reads the expected anomaly time frames from external file
- * @param fileName path to file
- * @return vector containinig time frames
- */
-    virtual std::vector<std::vector<long>> readExpectedAnomalies(std::string fileName) {
-        std::ifstream input(fileName);
-        std::string currentLine;
-        std::vector<std::string> line;
-        std::vector<std::vector<long>> output;
-        while (input) {
-            input >> currentLine;
-            if (currentLine == "done") {
-                break;
-            }
-            line = split(currentLine);
-            std::vector<long> lineConverted;
-            lineConverted.push_back(std::stoi(line[0]));
-            lineConverted.push_back(std::stoi(line[1]));
-            output.push_back(lineConverted);
+        // There was an orphan anomaly which did not terminate in a mismatching pair.
+        if (flg) {
+            timeFrame.push_back(lastIndex);
+            output.push_back(timeFrame);
         }
-        return output;
-    }
-/**
- * Calculates true positive and false positive values based on received input.
- * @param expected expected anomalies
- * @param detected detected anomalies
- * @return vector. vec[0] = FP, vec[1] = TP
- */
-    virtual std::vector<long> getFPTP(std::vector<std::vector<long>> expected,
-                                      std::vector<std::vector<long>> detected) {
-        long FP = 0;
-        long TP = 0;
-        std::vector<long> output;
-        for (std::vector<long> i : detected) {
-            bool flg = true;
-            for (std::vector<long> j : expected) {
-                if ((i[0] >=  j[0] && i[0] <= j[1]) || (i[1] >=  j[0] && i[1] <= j[1])) {
-                    TP++;
-                    flg = false;
-                }
-            }
-            if (flg) {
-                FP++;
-            }
-        }
-        output.push_back(FP);
-        output.push_back(TP);
         return output;
     }
 
 };
 
-// implement here your command classes
 // Command 1
 class TrainCSVCommand : public Command {
 public:
-    TrainCSVCommand(DefaultIO* dio, Database* db) : Command(dio, db, "1. upload a time series csv file"){};
+    TrainCSVCommand(DefaultIO* dio, Database* db) : Command(dio, db, "1.upload a time series csv file\n"){};
     void execute() override {
-        dio->write("Please upload your local train CSV file.");
-        writeTo("train_file.csv");
-        db->tsArray.push_back(TimeSeries("train_file.csv")); // train file will be at array[0]
-        dio->write("Upload complete.");
-        dio->write("Please upload your local test CSV file.");
-        writeTo("test_file.csv");
-        db->tsArray.push_back(TimeSeries("test_file.csv"));
-        dio->write("Upload complete.");
+        dio->write("Please upload your local train CSV file.\n");
+        writeTo("trainFile.csv");
+        db->tsArray.push_back(TimeSeries("trainFile.csv")); // train file will be at array[0]
+        dio->write("Upload complete.\n");
+        dio->write("Please upload your local test CSV file.\n");
+        writeTo("testFile.csv");
+        db->tsArray.push_back(TimeSeries("testFile.csv"));
+        dio->write("Upload complete.\n");
     }
-    void writeTo(std::string path) {
-        std::ofstream out(path);
+    // Receives a path and writes lines to it.
+    void writeTo(char* path) {
+        std::ofstream out;
         out.open(path);
         std::string line = dio->read();
         while (line != "done") {
-            out << line << '\n';
+            out << line;
             line = dio->read();
+            if (line == "done") {
+                break;
+            }
+            out << "\n";
         }
-        out.close();
+
     }
 };
-// Command 2
+// Command 2 - changes the threshold of the Detection algorithm.
 class ChangeThresholdCommand : public Command {
 public:
-    ChangeThresholdCommand(DefaultIO* dio, Database* db) : Command(dio, db, "2. algorithm settings"){};
+    ChangeThresholdCommand(DefaultIO* dio, Database* db) : Command(dio, db, "2.algorithm settings\n"){};
     void execute() override {
         std::string output = "The current correlation threshold is ";
         output += to_string(db->detector.threshold);
+        output += "\n";
         dio->write(output);
-        dio->write("Type a new threshold");
+        dio->write("Type a new threshold\n");
         float choice;
         // This loop runs until the user enters a valid input.
         while(true){
@@ -190,13 +152,13 @@ public:
                     break;
                 }
                 else {
-                    dio->write("please choose a value between 0 and 1.");
+                    dio->write("please choose a value between 0 and 1.\n");
                     continue;
                 }
             }
-                // user entered value that cannot be converted to float - continue loop
+            // user entered value that cannot be converted to float - continue loop
             catch (const std::invalid_argument) {
-                dio->write("please choose a value between 0 and 1.");
+                dio->write("please choose a value between 0 and 1.\n");
                 continue;
             }
         }
@@ -204,77 +166,99 @@ public:
     }
 };
 
-// Command 3
+// Command 3 - Perform anomaly detection
 class TestCSVCommand : public Command {
 public:
-    TestCSVCommand(DefaultIO* dio, Database* db) : Command(dio, db, "3. detect anomalies"){};
+    TestCSVCommand(DefaultIO* dio, Database* db) : Command(dio, db, "3.detect anomalies\n"){};
     void execute() override {
         db->detector.learnNormal(db->tsArray[0]);
         db->anomalies = db->detector.detect(db->tsArray[1]);
-        dio->write("anomaly detection complete.");
+        dio->write("anomaly detection complete.\n");
     }
 };
 
-// Command 4
+// Command 4 - Display the anomaly detection results
 class DisplayResultsCommand : public Command {
 public:
-    DisplayResultsCommand(DefaultIO *dio, Database *db) : Command(dio, db, "4. display results") {};
+    DisplayResultsCommand(DefaultIO *dio, Database *db) : Command(dio, db, "4.display results\n") {};
     void execute() override {
         for (AnomalyReport i : db->anomalies) {
             std::string output;
             output += to_string(i.timeStep);
             output += "\t";
             output += i.description;
+            output += "\n";
             dio->write(output);
         }
-        dio->write("Done.");
+        dio->write("Done.\n");
     }
 };
-// Command 5
+// Command 5 - Analyzes the results, compares expected
 class AnalyzeResultsCommand : public Command {
 public:
     AnalyzeResultsCommand(DefaultIO *dio, Database *db) :
-    Command(dio, db, "5. upload anomalies and analyze results") {};
+    Command(dio, db, "5.upload anomalies and analyze results\n") {};
+    static bool comparator(const std::vector<long>& a, const std::vector<long>& b) {
+        return (a.at(0) < b.at(0));
+    }
     void execute() override {
-        dio->write("Please upload your local anomalies file.");
+        // initialize positive and negative fields.
+        int P = 0;
+        int N = db->tsArray.at(1).getDataCol(0).size() - 1;
+
+        dio->write("Please upload your local anomalies file.\n");
         std::vector<std::vector<long>> expected;
-        std::string path = dio->read();
 
         std::string line;
-        while ((line = dio->read()) != "done") {
+        line = dio->read();
+        while (line != "done") {
             std::vector<long> sub;
-            sub.push_back(stof(line.substr(0, line.find(','))));
-            sub.push_back(stof(line.substr(line.find(',') + 1)));
+            std::vector<std::string> splitLine = split(line);
+            sub.push_back(stol(splitLine.at(0)));
+            sub.push_back(stol(splitLine.at(1)));
             expected.push_back(sub);
+            P++;
+            line = dio->read();
         }
-        dio->write("Upload complete.");
+        dio->write("Upload complete.\n");
+        sort(expected.begin(), expected.end(), comparator);
         auto detected = formatAnomalyTS(db->anomalies);
-        std::vector<long> results = getFPTP(expected, detected);
-        long p = expected.size();
-        long N = db->tsArray[1].getDataCol(0).size();
-        for (std::vector<long> i : expected) {
-            N -= i[1] - i[0] + 1;
+
+
+        sort(detected.begin(), detected.end(), comparator);
+        auto numOfAnomalies = expected.size();
+        // Initialize false positive and true positive variables
+        size_t start, end, j = 0, FP = 0, TP = 0;
+        // The loop will iterate over the number of expected anomalies. Will check if recorded anomalies match
+        // expected ones.
+        for (int i = 0; i < numOfAnomalies; ++i) {
+            start = expected.at(i).at(0); //
+            end = expected.at(i).at(1);
+            while (j < detected.size() && detected.at(j).at(0) <= end) {
+                if (detected.at(j).at(1) < start)
+                    ++FP;
+                else
+                    ++TP;
+                ++j;
+            }
+            N -= (end - start + 1);
         }
-        double tpRate = ((double) results[1]) / ((double) p);
-        tpRate *= 1000;
-        tpRate = floor(tpRate);
-        tpRate /= 1000;
-        double fpRate = ((double) results[0]) / ((double) N);
-        fpRate *= 1000;
-        fpRate = floor(fpRate);
-        fpRate /= 1000;
-        std::string outputString = "True Positive Rate: ";
-        outputString += tpRate;
-        dio->write(outputString);
-        outputString = "False Positive Rate: ";
-        outputString +=  fpRate;
-        dio->write(outputString);
+        FP += (detected.size() - j);
+        float tpRate = floor(1000 * ((float)TP / P)) / 1000;
+        float fpRate = floor(1000 * ((float)FP / N)) / 1000;
+        dio->write("True Positive Rate: ");
+        dio->write(tpRate);
+        dio->write("\n");
+        dio->write("False Positive Rate: ");
+        dio->write(fpRate);
+        dio->write("\n");
     }
 };
 
+// Command 6 - exits the program.
 class ExitCommand : public Command {
 public:
-    ExitCommand(DefaultIO *dio, Database *db) : Command(dio, db, "6. exit") {};
+    ExitCommand(DefaultIO *dio, Database *db) : Command(dio, db, "6.exit\n") {};
     void execute() override {
         db->stopFlg = false;
     }

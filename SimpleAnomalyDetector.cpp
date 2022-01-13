@@ -60,14 +60,11 @@ std::vector<AnomalyReport> SimpleAnomalyDetector::detect(const TimeSeries& ts) {
             float distance = abs(yExpected - yResult);
             if(distance > cf[i].threshold) {
                 c = j + 1;
-                break;
+                std::string temp;
+                temp.append(featureName1).append("-").append(featureName2);
+                AnomalyReport anomaly(temp, c);
+                output.push_back(anomaly);
             }
-        }
-        if (c != -1) {
-            std::string temp;
-            temp.append(featureName1).append("-").append(featureName2);
-            AnomalyReport anomaly(temp, c);
-            output.push_back(anomaly);
         }
         for (int i = 0; i < col1.size(); ++i) {
             delete[] *(pointArr + i);

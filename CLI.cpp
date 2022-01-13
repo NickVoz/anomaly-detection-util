@@ -20,16 +20,16 @@ CLI::CLI(DefaultIO* dio) : dio(dio) {
 
 void CLI::start() {
     while (db.stopFlg) {
-        dio->write("Welcome to the Anomaly Detection Server.\nPlease choose an option:");
+        dio->write("Welcome to the Anomaly Detection Server.\nPlease choose an option:\n");
         for (Command* i : commands) {
             dio->write(i->description);
         }
         try {
             int choice = std::stoi(dio->read());
-            commands[choice - 1]->execute();
+            commands.at(choice - 1)->execute();
         }
         catch (const exception& e) {
-            dio->write("Please choose an option from 1 to 6.");
+            dio->write("Please choose an option from 1 to 6.\n");
         }
     }
 }
