@@ -12,3 +12,6 @@ The programs comes with a command line interface, and is guaranteed to work on v
   * First, use `git clone` to fetch the repository
   * Use `make` to compile the source code(works on Linux)
   * a main.out file will be created, use `./main.out` to execute it.
+
+
+Example input(line by line) and output for the program are provided in the SampleInput/input.txt file.
