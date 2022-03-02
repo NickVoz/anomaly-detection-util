@@ -6,6 +6,9 @@
 #include "SimpleAnomalyDetector.h"
 #include "minCircle.h"
 
+/**
+  Class Declaration
+  */
 class HybridAnomalyDetector:public SimpleAnomalyDetector {
 public:
 	HybridAnomalyDetector();

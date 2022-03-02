@@ -1,6 +1,6 @@
 /**
- * Shani Shafir, ID: 207071721
- * Nick Vozilov, ID: 318732252
+ * Shani Shafir
+ * Nick Vozilov
  */
 
 #ifndef ANOMALY_DETECTION_UTIL_H

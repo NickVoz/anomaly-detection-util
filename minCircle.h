@@ -2,8 +2,8 @@
  * minCircle.h
  *
  * Authors:
- * Shani Shafir, ID: 207071721
- * Nick Vozilov, ID: 318732252
+ * Shani Shafir
+ * Nick Vozilov
  */
 
 #ifndef MINCIRCLE_H_
@@ -18,8 +18,6 @@
 #include "anomaly_detection_util.h"
 
 using namespace std;
-
-
 
 class Circle{
 public:

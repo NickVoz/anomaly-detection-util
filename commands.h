@@ -2,8 +2,8 @@
  * commands.h
  *
  * Authors:
- * Shani Shafir, ID: 207071721
- * Nick Vozilov, ID: 318732252
+ * Shani Shafir
+ * Nick Vozilov
  */
 
 #ifndef COMMANDS_H_
@@ -54,6 +54,11 @@ public:
     void read(float* f) override { std::cin >> *f; }
 };
 
+/**
+  * Command class, utilising the Command design pattern.
+  * Receives an IO object and a pointer to the shared database.
+  * Different commands will derive from this class with various functionality.
+  */
 class Command{
 protected:
 	DefaultIO* dio;
@@ -101,7 +106,8 @@ public:
 
 };
 
-// Command 1
+// Command 1 - Recieves a .CSV file data from user, input is received line by line(via either local command line or through a socket)
+// Performs the TrainCSV method
 class TrainCSVCommand : public Command {
 public:
     TrainCSVCommand(DefaultIO* dio, Database* db) : Command(dio, db, "1.upload a time series csv file\n"){};

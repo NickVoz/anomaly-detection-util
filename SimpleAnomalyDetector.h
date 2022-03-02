@@ -2,8 +2,8 @@
  * SimpleAnomalyDetector.h
  *
  * Authors:
- * Shani Shafir, ID: 207071721
- * Nick Vozilov, ID: 318732252
+ * Shani Shafir
+ * Nick Vozilov
  */
 
 #ifndef SIMPLEANOMALYDETECTOR_H
@@ -18,6 +18,7 @@
 #include <math.h>
 #include "minCircle.h"
 
+// struct containing fields of the correlated feature found
 struct correlatedFeatures {
     std::string feature1,feature2;  // names of the correlated features
     float corrlation = 0;

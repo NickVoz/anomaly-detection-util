@@ -8,6 +8,10 @@
 
 using namespace std;
 
+/**
+  * CLI class declaration
+  */
+
 class CLI {
 	DefaultIO* dio;
     std::vector<Command*> commands;

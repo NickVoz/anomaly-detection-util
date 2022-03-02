@@ -2,8 +2,8 @@
  * minCircle.cpp
  *
  * Authors:
- * Shani Shafir, ID: 207071721
- * Nick Vozilov, ID: 318732252
+ * Shani Shafir
+ * Nick Vozilov
  */
 
 #include "minCircle.h"

@@ -2,12 +2,16 @@
  * CLI.cpp
  *
  * Authors:
- * Shani Shafir, ID: 207071721
- * Nick Vozilov, ID: 318732252
+ * Shani Shafir
+ * Nick Vozilov
  */
 
 #include "CLI.h"
 
+/**
+ * CLI class consturctor, receives IO object(either server IO or local
+ * command line IO and pushes all the displayed commands to a command queue.
+ */
 CLI::CLI(DefaultIO* dio) : dio(dio) {
     this->dio = dio;
     commands.push_back(new TrainCSVCommand(dio, &db));
@@ -18,6 +22,9 @@ CLI::CLI(DefaultIO* dio) : dio(dio) {
     commands.push_back(new ExitCommand(dio, &db));
 }
 
+/**
+ * Starts the CLI program
+ */
 void CLI::start() {
     while (db.stopFlg) {
         dio->write("Welcome to the Anomaly Detection Server.\nPlease choose an option:\n");
@@ -34,7 +41,9 @@ void CLI::start() {
     }
 }
 
-
+/**
+ * Destructor
+ */
 CLI::~CLI() {
     for (auto& command : commands) {
         delete command;

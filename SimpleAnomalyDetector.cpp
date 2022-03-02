@@ -2,22 +2,21 @@
  * SimpleAnomalyDetector.cpp
  *
  * Authors:
- * Shani Shafir, ID: 207071721
- * Nick Vozilov, ID: 318732252
+ * Shani Shafir
+ * Nick Vozilov
  */
 
 #include "SimpleAnomalyDetector.h"
 
 SimpleAnomalyDetector::SimpleAnomalyDetector() {
-    // TODO Auto-generated constructor stub
-
 }
 
 SimpleAnomalyDetector::~SimpleAnomalyDetector() {
-    // TODO Auto-generated destructor stub
 }
 
-
+/**
+  * Receives a TimeSeries object(derived from CSV file) and learns correlations between different values in the table.
+  */
 void SimpleAnomalyDetector::learnNormal(const TimeSeries& ts) {
     for (int i = 0; i < ts.getNames().size(); i++) {
         float *compared = vecToArr(ts.getDataCol(i));
@@ -39,6 +38,9 @@ void SimpleAnomalyDetector::learnNormal(const TimeSeries& ts) {
     }
 }
 
+/**
+  * Detects anomalies in a received TimeSeries object.
+  */
 std::vector<AnomalyReport> SimpleAnomalyDetector::detect(const TimeSeries& ts) {
     std::vector<AnomalyReport> output;
     for(int i = 0; i < cf.size(); i++) {

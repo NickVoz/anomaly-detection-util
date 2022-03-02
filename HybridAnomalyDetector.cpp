@@ -11,6 +11,9 @@ HybridAnomalyDetector::~HybridAnomalyDetector() {
 	// TODO Auto-generated destructor stub
 }
 
+/**
+  * learnNormal method will perform study on the received dataset, will find adequate correlations
+  */
 void HybridAnomalyDetector::learnNormal(const TimeSeries& ts) {
     // Initialize correlatedFeatures vector with all proper correlations(>0.9)
     SimpleAnomalyDetector::learnNormal(ts);
@@ -43,6 +46,9 @@ void HybridAnomalyDetector::learnNormal(const TimeSeries& ts) {
     }
 
 }
+/**
+  * Detects anomalies in a recieved TimeSeries dataset
+  */
 std::vector<AnomalyReport> HybridAnomalyDetector::detect(const TimeSeries& ts) {
     auto output = SimpleAnomalyDetector::detect(ts);
     for(int i = 0; i < cf.size(); i++) {
@@ -75,6 +81,9 @@ std::vector<AnomalyReport> HybridAnomalyDetector::detect(const TimeSeries& ts) {
     }
     return output;
 }
+/**
+  * Auxiliary method to add a correlation between two different values in a TimeSeries object
+  */
 void HybridAnomalyDetector::addCorrelation(const TimeSeries& ts, int i, int c, Circle circle, float correlationVal) {
     correlatedFeatures correlated;
     correlated.feature1 = ts.getNames()[i];
@@ -94,6 +103,9 @@ void HybridAnomalyDetector::addCorrelation(const TimeSeries& ts, int i, int c, C
 
 }
 
+/**
+  * Creates a circle from two received vectors of x and y values.
+  */
 Circle getCircle(std::vector<float> a, std::vector<float> b) {
     Point** points = colToPoint(a, b, a.size());
     Circle output = findMinCircle(points, a.size());
