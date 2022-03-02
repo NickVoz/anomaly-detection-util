@@ -1,10 +1,11 @@
 # **Anomaly Detection Utility**
 
-This program  detects anomalies in a received dataset, written in C++.
-We created this program during one of our programming courses, it utilises various design patters, such as the Command patter.
+This program  detects anomalies in a received dataset.
+We created this program during one of our programming courses, it utilises various design patters, such as the Command pattern.
 
 The program first learns aobut correlations(using pearson correlation function) between various features in one dataset.
-Afterwards, it can receive addition datasets with the same features and detect anomalies from the detected correlation values.
+Afterwards, it can receive additional datasets with the same features and detect anomalies from the detected correlation values.
+Correlation requirements such as desired threshold can be tweaked using the program's menu.
 
 The programs comes with a command line interface, and is guaranteed to work on various Linux distors.
 
